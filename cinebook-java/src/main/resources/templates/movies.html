@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/navbar :: head('Movies')}"></head>
+<body>
+<nav th:replace="~{fragments/navbar :: navbar}"></nav>
+
+<main class="container py-5">
+    <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3 mb-4">
+        <div>
+            <h1 class="h2 fw-bold text-white mb-1">Explore Indian &amp; World Cinema</h1>
+            <p class="text-secondary small mb-0">Filter by Kannada, Hindi, Tamil, Telugu, Malayalam, genre, or search by title</p>
+        </div>
+        <form th:action="@{/movies}" method="get" class="d-flex gap-2">
+            <input type="hidden" name="language" th:value="${selectedLanguage}">
+            <input type="hidden" name="genre" th:value="${selectedGenre}">
+            <input type="hidden" name="status" th:value="${selectedStatus}">
+            <input type="text" name="q" th:value="${searchQuery}" class="form-control bg-dark text-white border-secondary" placeholder="Search movie name...">
+            <button type="submit" class="btn btn-cine">Search</button>
+        </form>
+    </div>
+
+    <div class="d-flex flex-wrap gap-2 mb-3">
+        <a th:href="@{/movies(language=${selectedLanguage},genre=${selectedGenre},q=${searchQuery})}" class="btn btn-sm" th:classappend="${selectedStatus == null or selectedStatus == ''} ? 'btn-cine' : 'btn-outline-secondary'">All Movies</a>
+        <a th:href="@{/movies(status='NOW_SHOWING',language=${selectedLanguage},genre=${selectedGenre},q=${searchQuery})}" class="btn btn-sm" th:classappend="${selectedStatus == 'NOW_SHOWING'} ? 'btn-cine' : 'btn-outline-secondary'">Now Showing</a>
+        <a th:href="@{/movies(status='UPCOMING',language=${selectedLanguage},genre=${selectedGenre},q=${searchQuery})}" class="btn btn-sm" th:classappend="${selectedStatus == 'UPCOMING'} ? 'btn-cine' : 'btn-outline-secondary'">Upcoming</a>
+    </div>
+
+    <div class="d-flex flex-wrap gap-2 mb-3">
+        <a th:href="@{/movies(status=${selectedStatus},genre=${selectedGenre},q=${searchQuery})}" class="btn btn-sm" th:classappend="${selectedLanguage == null or selectedLanguage == ''} ? 'btn-light text-dark' : 'btn-outline-secondary'">All Languages</a>
+        <a th:each="lang : ${languages}" th:href="@{/movies(status=${selectedStatus},language=${lang},genre=${selectedGenre},q=${searchQuery})}" th:text="${lang}" class="btn btn-sm" th:classappend="${selectedLanguage == lang} ? 'btn-light text-dark' : 'btn-outline-secondary'"></a>
+    </div>
+
+    <div class="d-flex flex-wrap gap-2 mb-4">
+        <a th:href="@{/movies(status=${selectedStatus},language=${selectedLanguage},q=${searchQuery})}" class="btn btn-sm" th:classappend="${selectedGenre == null or selectedGenre == ''} ? 'btn-light text-dark' : 'btn-outline-secondary'">All Genres</a>
+        <a th:each="g : ${genres}" th:href="@{/movies(status=${selectedStatus},language=${selectedLanguage},genre=${g},q=${searchQuery})}" th:text="${g}" class="btn btn-sm" th:classappend="${selectedGenre == g} ? 'btn-light text-dark' : 'btn-outline-secondary'"></a>
+    </div>
+
+    <div class="row g-4" th:if="${!#lists.isEmpty(movies)}">
+        <div class="col-sm-6 col-lg-3" th:each="movie : ${movies}">
+            <div class="cb-card h-100 d-flex flex-column overflow-hidden">
+                <img th:if="${movie.posterUrl != null and !#strings.isEmpty(movie.posterUrl)}" th:src="${movie.posterUrl}" th:alt="${movie.title}" class="poster-frame">
+                <div th:if="${movie.posterUrl == null or #strings.isEmpty(movie.posterUrl)}" class="poster-frame d-flex flex-column justify-content-between p-3" style="background: linear-gradient(160deg, #1a1f33 0%, #0b0e17 100%);">
+                    <div class="small text-danger fw-semibold text-uppercase" th:text="${movie.language}"></div>
+                    <div>
+                        <div class="h5 fw-bold text-white mb-1" th:text="${movie.title}"></div>
+                        <div class="small text-secondary" th:text="${movie.genre}"></div>
+                    </div>
+                </div>
+                <div class="p-3 d-flex flex-column flex-grow-1">
+                    <div class="small text-secondary mb-1">
+                        <span th:text="${movie.genre}"></span> · <span th:text="${movie.language}"></span>
+                    </div>
+                    <h3 class="h5 fw-bold text-white mb-2" th:text="${movie.title}"></h3>
+                    <div class="small text-secondary mb-3">
+                        <span th:if="${movie.rating != null}">★ <span class="text-white" th:text="${movie.rating}"></span>/10 · </span>
+                        <span th:text="${movie.formattedDuration}"></span> · <span th:text="${movie.releaseDate}"></span>
+                    </div>
+                    <a th:href="@{'/movies/' + ${movie.id}}" class="btn btn-cine w-100 mt-auto" th:text="${movie.status.name() == 'NOW_SHOWING'} ? 'Book Tickets' : 'View Details'">Book Tickets</a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="alert alert-dark border-secondary text-secondary" th:if="${#lists.isEmpty(movies)}">
+        No movies matched your search criteria. Try clearing your filter.
+    </div>
+</main>
+
+<footer th:replace="~{fragments/navbar :: footer}"></footer>
+</body>
+</html>

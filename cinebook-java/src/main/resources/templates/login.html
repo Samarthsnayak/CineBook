@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/navbar :: head('Login')}"></head>
+<body>
+<nav th:replace="~{fragments/navbar :: navbar}"></nav>
+
+<main class="container py-5" style="max-width: 460px;">
+    <div class="cb-card p-4 p-md-5">
+        <h1 class="h3 fw-bold text-white mb-1">Sign In to CineBook</h1>
+        <p class="small text-secondary mb-4">Access your bookings or sign in with administrator credentials</p>
+
+        <div th:if="${param.error}" class="alert alert-danger small">Invalid email or password. Please try again.</div>
+        <div th:if="${successMessage}" class="alert alert-success small" th:text="${successMessage}"></div>
+
+        <form th:action="@{/login}" method="post">
+            <div class="mb-3">
+                <label class="form-label small text-secondary">Email Address</label>
+                <input type="email" name="email" class="form-control bg-dark text-white border-secondary" required>
+            </div>
+            <div class="mb-4">
+                <label class="form-label small text-secondary">Password</label>
+                <input type="password" name="password" class="form-control bg-dark text-white border-secondary" required>
+            </div>
+            <button type="submit" class="btn btn-cine w-100 mb-3">Sign In</button>
+        </form>
+
+        <div class="small text-secondary border-top border-secondary border-opacity-25 pt-3">
+            <div>Customer Demo: <code class="text-white">user@cinebook.com</code> / <code class="text-white">User@123</code></div>
+            <div>Admin Demo: <code class="text-white">admin@cinebook.com</code> / <code class="text-white">Admin@123</code></div>
+            <div class="mt-3">New to CineBook? <a th:href="@{/register}" class="text-danger text-decoration-none">Create an account</a></div>
+        </div>
+    </div>
+</main>
+
+<footer th:replace="~{fragments/navbar :: footer}"></footer>
+</body>
+</html>

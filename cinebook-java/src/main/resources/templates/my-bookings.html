@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/navbar :: head('My Bookings')}"></head>
+<body>
+<nav th:replace="~{fragments/navbar :: navbar}"></nav>
+
+<main class="container py-5">
+    <h1 class="h2 fw-bold text-white mb-2">My Bookings</h1>
+    <p class="small text-secondary mb-4">Cancellation policy: Free cancellation available up to 2 hours prior to showtime.</p>
+
+    <div th:if="${successMessage}" class="alert alert-success" th:text="${successMessage}"></div>
+    <div th:if="${errorMessage}" class="alert alert-danger" th:text="${errorMessage}"></div>
+
+    <div th:if="${#lists.isEmpty(bookings)}" class="cb-card p-5 text-center">
+        <p class="text-secondary mb-3">You have not booked any movie tickets yet.</p>
+        <a th:href="@{/movies}" class="btn btn-cine">Browse Movies</a>
+    </div>
+
+    <div class="d-flex flex-column gap-3">
+        <div th:each="booking : ${bookings}" class="cb-card p-4">
+            <div class="row align-items-center g-3">
+                <div class="col-auto">
+                    <img th:if="${booking.show.movie.posterUrl != null and !#strings.isEmpty(booking.show.movie.posterUrl)}"
+                         th:src="${booking.show.movie.posterUrl}" th:alt="${booking.show.movie.title}"
+                         class="rounded border border-secondary border-opacity-25" style="width: 68px; height: 96px; object-fit: cover;">
+                    <div th:if="${booking.show.movie.posterUrl == null or #strings.isEmpty(booking.show.movie.posterUrl)}"
+                         class="rounded border border-secondary border-opacity-25 d-flex align-items-end p-2 small fw-bold text-white"
+                         style="width: 68px; height: 96px; background: linear-gradient(160deg, #1a1f33 0%, #0b0e17 100%); font-size: 11px;"
+                         th:text="${booking.show.movie.title}"></div>
+                </div>
+                <div class="col">
+                    <div class="small text-secondary mb-1 d-flex flex-wrap gap-2">
+                        <span>Booking ID: <strong class="font-monospace text-white" th:text="${booking.bookingReference}"></strong></span>
+                        <span>·</span>
+                        <span>Booking: <strong th:text="${booking.status}" th:classappend="${booking.status.name() == 'CONFIRMED'} ? 'text-success' : 'text-danger'"></strong></span>
+                        <span>·</span>
+                        <span th:if="${booking.payment != null}">Payment: <strong class="text-white" th:text="${booking.payment.status}"></strong></span>
+                    </div>
+                    <h2 class="h5 fw-bold text-white mb-1" th:text="${booking.show.movie.title}"></h2>
+                    <div class="small text-secondary mb-1">
+                        <span th:text="${booking.show.screen.theatre.name}"></span> ·
+                        <span th:text="${booking.show.screen.name}"></span> ·
+                        <span th:text="${booking.show.showDate} + ' · ' + ${booking.show.showTime}"></span>
+                    </div>
+                    <div class="small text-secondary">
+                        Seats: <strong class="font-monospace text-white" th:text="${!#strings.isEmpty(booking.seatSummary) ? booking.seatSummary : 'Released'}"></strong>
+                        · Tickets: <strong class="text-white" th:text="${booking.ticketCount}"></strong>
+                    </div>
+                </div>
+                <div class="col-md-auto d-flex flex-wrap align-items-center gap-2">
+                    <div class="font-monospace fw-bold text-white me-2">₹<span th:text="${booking.totalAmount}"></span></div>
+                    <a th:if="${booking.status.name() == 'CONFIRMED'}" th:href="@{'/bookings/ticket/' + ${booking.bookingReference}}" class="btn btn-outline-light btn-sm">View / Print Ticket</a>
+                    <form th:if="${booking.status.name() == 'CONFIRMED'}" th:action="@{'/bookings/' + ${booking.id} + '/cancel'}" method="post" class="m-0">
+                        <button type="submit" class="btn btn-outline-danger btn-sm">Cancel Booking</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</main>
+
+<footer th:replace="~{fragments/navbar :: footer}"></footer>
+</body>
+</html>

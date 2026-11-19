@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/navbar :: head('Payment')}"></head>
+<body>
+<nav th:replace="~{fragments/navbar :: navbar}"></nav>
+
+<main class="container py-5" style="max-width: 720px;">
+    <h1 class="h2 fw-bold text-white mb-2">Simulated Payment Gateway</h1>
+    <p class="text-secondary small mb-4">Academic simulation mode — no real financial transaction is processed. Your booking is confirmed only upon successful payment.</p>
+
+    <form th:action="@{/payment/process}" method="post" class="cb-card p-4" onsubmit="var btn = this.querySelector('#payBtn'); if(btn.disabled) return false; btn.disabled = true; btn.innerText = 'Processing Payment...';">
+        <input type="hidden" name="showId" th:value="${show.id}">
+        <input type="hidden" name="idempotencyKey" th:value="${idempotencyKey}">
+        <input type="hidden" th:each="sid : ${seatIds}" name="seatIds" th:value="${sid}">
+
+        <div class="pb-3 mb-4 border-bottom border-secondary border-opacity-25">
+            <div class="d-flex justify-content-between align-items-start mb-2">
+                <div>
+                    <div class="fw-bold text-white" th:text="${show.movie.title}"></div>
+                    <div class="small text-secondary" th:text="${show.screen.theatre.name} + ' · ' + ${show.screen.name}"></div>
+                    <div class="small text-secondary" th:text="${show.showDate} + ' · ' + ${show.showTime} + ' · ' + ${#lists.size(selectedSeats)} + ' seat(s)'"></div>
+                </div>
+                <div class="h4 fw-bold text-danger font-monospace mb-0">₹<span th:text="${totalAmount}"></span></div>
+            </div>
+            <div class="small text-secondary d-flex justify-content-between">
+                <span>Tickets: ₹<span th:text="${subtotal}"></span> + Fee: ₹<span th:text="${convenienceFee}"></span> + GST (18%): ₹<span th:text="${taxAmount}"></span></span>
+            </div>
+        </div>
+
+        <div class="mb-3">
+            <label class="form-label text-white fw-medium">Select Payment Method</label>
+            <div class="row g-2">
+                <div class="col-6">
+                    <input type="radio" class="btn-check" name="paymentMethod" id="payUpi" value="UPI" checked>
+                    <label class="btn btn-outline-light w-100" for="payUpi">UPI (GPay / PhonePe)</label>
+                </div>
+                <div class="col-6">
+                    <input type="radio" class="btn-check" name="paymentMethod" id="payDebit" value="DEBIT_CARD">
+                    <label class="btn btn-outline-light w-100" for="payDebit">Debit Card</label>
+                </div>
+                <div class="col-6">
+                    <input type="radio" class="btn-check" name="paymentMethod" id="payCredit" value="CREDIT_CARD">
+                    <label class="btn btn-outline-light w-100" for="payCredit">Credit Card</label>
+                </div>
+                <div class="col-6">
+                    <input type="radio" class="btn-check" name="paymentMethod" id="payNet" value="NET_BANKING">
+                    <label class="btn btn-outline-light w-100" for="payNet">Net Banking</label>
+                </div>
+            </div>
+        </div>
+
+        <div class="mb-3">
+            <label for="paymentDetails" class="form-label small text-secondary">UPI ID / Masked Card Last 4 / Bank Name</label>
+            <input type="text" id="paymentDetails" name="paymentDetails" class="form-control bg-dark text-white border-secondary" placeholder="e.g. aarav@okhdfcbank or VISA •••• 4242" required>
+        </div>
+
+        <div class="form-check mb-4">
+            <input class="form-check-input" type="checkbox" name="simulateFailure" value="true" id="simFail">
+            <label class="form-check-label small text-secondary" for="simFail">
+                Simulate Bank Payment Failure (demo verification: ensures no booking is created)
+            </label>
+        </div>
+
+        <button id="payBtn" type="submit" class="btn btn-cine w-100 py-2 fw-semibold">Pay Amount and Generate Ticket (₹<span th:text="${totalAmount}"></span>)</button>
+    </form>
+</main>
+
+<footer th:replace="~{fragments/navbar :: footer}"></footer>
+</body>
+</html>

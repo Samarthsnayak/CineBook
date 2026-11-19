@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/navbar :: head(${movie.title})}"></head>
+<body>
+<nav th:replace="~{fragments/navbar :: navbar}"></nav>
+
+<main class="container py-5">
+    <div class="row g-4 mb-5 align-items-start">
+        <div class="col-md-4 col-lg-3">
+            <img th:src="${movie.posterUrl}" th:alt="${movie.title}" class="img-fluid rounded-3 border border-secondary border-opacity-25">
+        </div>
+        <div class="col-md-8 col-lg-9">
+            <div class="small text-secondary mb-2">
+                <span th:text="${movie.genre}"></span> · <span th:text="${movie.language}"></span> ·
+                <span th:text="${movie.formattedDuration}"></span> · <span th:text="${movie.certificate}"></span>
+            </div>
+            <h1 class="display-5 fw-bold text-white mb-3" th:text="${movie.title}"></h1>
+            <p class="fs-5 text-white mb-3">★ <span th:text="${movie.rating}"></span> / 10</p>
+            <p class="text-secondary mb-4" style="max-width: 72ch;" th:text="${movie.description}"></p>
+            <div class="row g-3 small border-top border-secondary border-opacity-25 pt-3">
+                <div class="col-sm-4">
+                    <div class="text-secondary">Director</div>
+                    <div class="text-white fw-medium" th:text="${movie.director}"></div>
+                </div>
+                <div class="col-sm-8">
+                    <div class="text-secondary">Cast</div>
+                    <div class="text-white fw-medium" th:text="${movie.castMembers}"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <section class="border-top border-secondary border-opacity-25 pt-4">
+        <div class="d-flex flex-wrap justify-content-between align-items-center gap-3 mb-4">
+            <h2 class="h4 fw-bold text-white mb-0">Select Theatre &amp; Showtime</h2>
+            <form th:action="@{'/movies/' + ${movie.id}}" method="get" class="d-flex flex-wrap gap-2">
+                <select name="city" class="form-select form-select-sm bg-dark text-white border-secondary" onchange="this.form.submit()" style="width:auto;">
+                    <option th:each="c : ${cities}" th:value="${c}" th:text="${c}" th:selected="${c == selectedCity}"></option>
+                </select>
+                <div class="btn-group btn-group-sm">
+                    <a th:each="d : ${upcomingDates}"
+                       th:href="@{'/movies/' + ${movie.id}(city=${selectedCity}, date=${d})}"
+                       th:text="${d}"
+                       class="btn"
+                       th:classappend="${d == selectedDate} ? 'btn-cine' : 'btn-outline-secondary'"></a>
+                </div>
+            </form>
+        </div>
+
+        <div th:if="${#maps.isEmpty(showsByTheatre)}" class="p-4 cb-card text-secondary">
+            No showtimes scheduled for this date and city. Try selecting another date or city.
+        </div>
+
+        <div class="d-flex flex-column gap-3" th:each="entry : ${showsByTheatre}">
+            <div class="cb-card p-4">
+                <div class="d-flex flex-column flex-md-row justify-content-between mb-3">
+                    <div>
+                        <h3 class="h5 fw-bold text-white mb-1" th:text="${entry.key.name}"></h3>
+                        <div class="small text-secondary" th:text="${entry.key.address} + ' · ' + ${entry.key.amenities}"></div>
+                    </div>
+                </div>
+                <div class="d-flex flex-wrap gap-2">
+                    <a th:each="s : ${entry.value}"
+                       th:href="@{'/shows/' + ${s.id} + '/seats'}"
+                       class="btn btn-outline-light text-start px-3 py-2">
+                        <div class="fw-bold font-monospace" th:text="${s.showTime}"></div>
+                        <div class="small text-secondary" th:text="${s.screen.name} + ' · ₹' + ${s.silverPrice} + '+'"></div>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </section>
+</main>
+
+<footer th:replace="~{fragments/navbar :: footer}"></footer>
+</body>
+</html>

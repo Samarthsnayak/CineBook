@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/navbar :: head('Booking Summary')}"></head>
+<body>
+<nav th:replace="~{fragments/navbar :: navbar}"></nav>
+
+<main class="container py-5" style="max-width: 780px;">
+    <h1 class="h2 fw-bold text-white mb-4">Booking Summary</h1>
+
+    <div class="cb-card p-4 mb-4">
+        <div class="row g-3 pb-3 mb-3 border-bottom border-secondary border-opacity-25">
+            <div class="col-md-8">
+                <div class="small text-secondary">Movie</div>
+                <h2 class="h4 fw-bold text-white mb-1" th:text="${show.movie.title}"></h2>
+                <div class="small text-secondary" th:text="${show.screen.theatre.name} + ' · ' + ${show.screen.name}"></div>
+            </div>
+            <div class="col-md-4 text-md-end">
+                <div class="small text-secondary">Date &amp; Time</div>
+                <div class="fw-semibold text-white" th:text="${show.showDate}"></div>
+                <div class="font-monospace text-danger fw-bold" th:text="${show.showTime}"></div>
+            </div>
+        </div>
+
+        <h3 class="h6 text-secondary mb-3">Selected Seats</h3>
+        <div class="list-group list-group-flush mb-4">
+            <div th:each="seat : ${selectedSeats}" class="list-group-item bg-transparent text-white border-secondary border-opacity-25 d-flex justify-content-between px-0">
+                <span>Seat <strong th:text="${seat.seatNumber}"></strong> · <span class="text-secondary small" th:text="${seat.category}"></span></span>
+                <span class="font-monospace">₹<span th:text="${seat.price}"></span></span>
+            </div>
+        </div>
+
+        <div class="d-flex justify-content-between small text-secondary mb-2">
+            <span>Ticket Price (<span th:text="${#lists.size(selectedSeats)}"></span> seat(s))</span>
+            <span class="font-monospace">₹<span th:text="${subtotal}"></span></span>
+        </div>
+        <div class="d-flex justify-content-between small text-secondary mb-2">
+            <span>Convenience Fee (₹30 / ticket)</span>
+            <span class="font-monospace">₹<span th:text="${convenienceFee}"></span></span>
+        </div>
+        <div class="d-flex justify-content-between small text-secondary mb-3">
+            <span>GST (18% on Convenience Fee)</span>
+            <span class="font-monospace">₹<span th:text="${taxAmount}"></span></span>
+        </div>
+        <div class="d-flex justify-content-between h4 fw-bold text-white pt-3 border-top border-secondary border-opacity-25">
+            <span>Final Total Payable</span>
+            <span class="font-monospace text-danger">₹<span th:text="${totalAmount}"></span></span>
+        </div>
+
+        <form th:action="@{/payment}" method="post" class="d-flex justify-content-between mt-4">
+            <input type="hidden" name="showId" th:value="${show.id}">
+            <input type="hidden" th:each="sid : ${seatIds}" name="seatIds" th:value="${sid}">
+            <a th:href="@{'/shows/' + ${show.id} + '/seats'}" class="btn btn-outline-secondary">Change Seats</a>
+            <button type="submit" class="btn btn-cine px-4">Confirm Booking &amp; Pay</button>
+        </form>
+    </div>
+</main>
+
+<footer th:replace="~{fragments/navbar :: footer}"></footer>
+</body>
+</html>

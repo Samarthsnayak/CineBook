@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/navbar :: head('Admin Dashboard')}"></head>
+<body>
+<nav th:replace="~{fragments/navbar :: navbar}"></nav>
+
+<main class="container py-5">
+    <div class="d-flex flex-wrap justify-content-between align-items-center gap-3 mb-4">
+        <h1 class="h2 fw-bold text-white mb-0">Administrator Dashboard</h1>
+        <form th:action="@{/admin/tmdb/sync}" method="post" class="m-0">
+            <button type="submit" class="btn btn-outline-light btn-sm px-3">Sync Indian Movies (TMDB)</button>
+        </form>
+    </div>
+
+    <div th:if="${successMessage}" class="alert alert-success" th:text="${successMessage}"></div>
+    <div th:if="${errorMessage}" class="alert alert-danger" th:text="${errorMessage}"></div>
+
+    <!-- KPI Statistics Strip -->
+    <div class="row g-3 mb-5">
+        <div class="col-sm-6 col-lg-3">
+            <div class="cb-card p-3">
+                <div class="small text-secondary">Confirmed Revenue</div>
+                <div class="h3 fw-bold text-white font-monospace mb-0">₹<span th:text="${stats.totalRevenue}"></span></div>
+            </div>
+        </div>
+        <div class="col-sm-6 col-lg-3">
+            <div class="cb-card p-3">
+                <div class="small text-secondary">Confirmed Bookings</div>
+                <div class="h3 fw-bold text-white font-monospace mb-0" th:text="${stats.confirmedBookings}"></div>
+            </div>
+        </div>
+        <div class="col-sm-6 col-lg-3">
+            <div class="cb-card p-3">
+                <div class="small text-secondary">Active Movies &amp; Shows</div>
+                <div class="h3 fw-bold text-white font-monospace mb-0" th:text="${stats.totalMovies} + ' / ' + ${stats.totalShows}"></div>
+            </div>
+        </div>
+        <div class="col-sm-6 col-lg-3">
+            <div class="cb-card p-3">
+                <div class="small text-secondary">Registered Users</div>
+                <div class="h3 fw-bold text-white font-monospace mb-0" th:text="${stats.totalUsers}"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Add Movie & Schedule Show Forms -->
+    <div class="row g-4 mb-5">
+        <div class="col-lg-6">
+            <div class="cb-card p-4 h-100">
+                <h2 class="h5 fw-bold text-white mb-3">Add Movie</h2>
+                <form th:action="@{/admin/movies}" th:object="${movieForm}" method="post" class="row g-2">
+                    <div class="col-12"><input type="text" th:field="*{title}" class="form-control form-control-sm bg-dark text-white border-secondary" placeholder="Movie Title" required></div>
+                    <div class="col-6"><input type="text" th:field="*{genre}" class="form-control form-control-sm bg-dark text-white border-secondary" placeholder="Genre" required></div>
+                    <div class="col-6"><input type="text" th:field="*{language}" class="form-control form-control-sm bg-dark text-white border-secondary" placeholder="Language" required></div>
+                    <div class="col-6"><input type="text" th:field="*{director}" class="form-control form-control-sm bg-dark text-white border-secondary" placeholder="Director" required></div>
+                    <div class="col-6"><input type="number" th:field="*{durationMinutes}" class="form-control form-control-sm bg-dark text-white border-secondary" placeholder="Duration (mins)" required></div>
+                    <div class="col-12"><input type="text" th:field="*{castMembers}" class="form-control form-control-sm bg-dark text-white border-secondary" placeholder="Cast Members" required></div>
+                    <div class="col-6"><input type="date" th:field="*{releaseDate}" class="form-control form-control-sm bg-dark text-white border-secondary" required></div>
+                    <div class="col-6">
+                        <select th:field="*{status}" class="form-select form-select-sm bg-dark text-white border-secondary">
+                            <option value="NOW_SHOWING">Now Showing</option>
+                            <option value="UPCOMING">Upcoming</option>
+                        </select>
+                    </div>
+                    <div class="col-12"><input type="text" th:field="*{posterUrl}" class="form-control form-control-sm bg-dark text-white border-secondary" placeholder="Poster Image URL" required></div>
+                    <div class="col-12"><textarea th:field="*{description}" rows="2" class="form-control form-control-sm bg-dark text-white border-secondary" placeholder="Synopsis" required></textarea></div>
+                    <div class="col-12 mt-2"><button type="submit" class="btn btn-cine btn-sm w-100">Save Movie</button></div>
+                </form>
+            </div>
+        </div>
+
+        <div class="col-lg-6">
+            <div class="cb-card p-4 h-100">
+                <h2 class="h5 fw-bold text-white mb-3">Schedule Showtime &amp; Set Prices</h2>
+                <form th:action="@{/admin/shows}" th:object="${showForm}" method="post" class="row g-2">
+                    <div class="col-12">
+                        <select th:field="*{movieId}" class="form-select form-select-sm bg-dark text-white border-secondary" required>
+                            <option th:each="m : ${movies}" th:value="${m.id}" th:text="${m.title}"></option>
+                        </select>
+                    </div>
+                    <div class="col-12">
+                        <select th:field="*{screenId}" class="form-select form-select-sm bg-dark text-white border-secondary" required>
+                            <option th:each="sc : ${screens}" th:value="${sc.id}" th:text="${sc.theatre.city + ' - ' + sc.theatre.name + ' (' + sc.name + ')'}"></option>
+                        </select>
+                    </div>
+                    <div class="col-6"><input type="date" th:field="*{showDate}" class="form-control form-control-sm bg-dark text-white border-secondary" required></div>
+                    <div class="col-6"><input type="time" th:field="*{showTime}" class="form-control form-control-sm bg-dark text-white border-secondary" required></div>
+                    <div class="col-4"><input type="number" th:field="*{silverPrice}" class="form-control form-control-sm bg-dark text-white border-secondary" placeholder="Silver ₹" value="200" required></div>
+                    <div class="col-4"><input type="number" th:field="*{goldPrice}" class="form-control form-control-sm bg-dark text-white border-secondary" placeholder="Gold ₹" value="320" required></div>
+                    <div class="col-4"><input type="number" th:field="*{platinumPrice}" class="form-control form-control-sm bg-dark text-white border-secondary" placeholder="Platinum ₹" value="480" required></div>
+                    <div class="col-12 mt-2"><button type="submit" class="btn btn-cine btn-sm w-100">Schedule Show</button></div>
+                </form>
+
+                <hr class="border-secondary border-opacity-25 my-4">
+                <h3 class="h6 fw-bold text-white mb-2">Add Theatre</h3>
+                <form th:action="@{/admin/theatres}" method="post" class="row g-2">
+                    <div class="col-6"><input type="text" name="name" class="form-control form-control-sm bg-dark text-white border-secondary" placeholder="Theatre Name" required></div>
+                    <div class="col-6"><input type="text" name="city" class="form-control form-control-sm bg-dark text-white border-secondary" placeholder="City" required></div>
+                    <div class="col-12"><input type="text" name="address" class="form-control form-control-sm bg-dark text-white border-secondary" placeholder="Full Address" required></div>
+                    <div class="col-12"><button type="submit" class="btn btn-outline-light btn-sm w-100">Add Theatre &amp; Screen</button></div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Movies Table -->
+    <div class="cb-card p-4 mb-4">
+        <h2 class="h5 fw-bold text-white mb-3">Movies Catalog</h2>
+        <div class="table-responsive">
+            <table class="table table-dark table-hover align-middle small mb-0">
+                <thead><tr><th>Title</th><th>Genre</th><th>Language</th><th>Status</th><th>Rating</th><th>Action</th></tr></thead>
+                <tbody>
+                    <tr th:each="m : ${movies}">
+                        <td class="fw-semibold" th:text="${m.title}"></td>
+                        <td th:text="${m.genre}"></td>
+                        <td th:text="${m.language}"></td>
+                        <td th:text="${m.status}"></td>
+                        <td class="font-monospace" th:text="${m.rating}"></td>
+                        <td>
+                            <form th:action="@{'/admin/movies/' + ${m.id} + '/delete'}" method="post" class="m-0">
+                                <button type="submit" class="btn btn-outline-danger btn-sm">Delete</button>
+                            </form>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- Bookings & Users Tables -->
+    <div class="cb-card p-4">
+        <h2 class="h5 fw-bold text-white mb-3">Recent Bookings</h2>
+        <div class="table-responsive">
+            <table class="table table-dark table-hover align-middle small mb-0">
+                <thead><tr><th>Booking ID</th><th>Customer</th><th>Movie</th><th>Show</th><th>Amount</th><th>Status</th></tr></thead>
+                <tbody>
+                    <tr th:each="b : ${bookings}">
+                        <td class="font-monospace" th:text="${b.bookingReference}"></td>
+                        <td th:text="${b.user.name + ' (' + b.user.email + ')'}"></td>
+                        <td th:text="${b.show.movie.title}"></td>
+                        <td th:text="${b.show.showDate + ' ' + b.show.showTime}"></td>
+                        <td class="font-monospace">₹<span th:text="${b.totalAmount}"></span></td>
+                        <td th:text="${b.status}"></td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</main>
+
+<footer th:replace="~{fragments/navbar :: footer}"></footer>
+</body>
+</html>

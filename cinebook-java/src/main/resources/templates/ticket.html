@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/navbar :: head('Digital Ticket')}"></head>
+<body>
+<nav th:replace="~{fragments/navbar :: navbar}"></nav>
+
+<main class="container py-5" style="max-width: 860px;">
+    <div class="alert alert-success border-success bg-success bg-opacity-10 text-white d-flex justify-content-between align-items-center mb-4 no-print">
+        <div>
+            <div class="fw-bold">Payment Successful</div>
+            <div class="small text-secondary">Your booking has been saved in MySQL and added to My Bookings. Present this QR code at the theatre entrance.</div>
+        </div>
+        <div class="d-flex gap-2">
+            <button type="button" onclick="window.print()" class="btn btn-cine btn-sm px-3">Print / Download Ticket</button>
+            <a th:href="@{/bookings/my}" class="btn btn-outline-light btn-sm px-3">My Bookings</a>
+        </div>
+    </div>
+
+    <div class="ticket-shell p-4 p-md-5">
+        <div class="row align-items-center g-4">
+            <div class="col-md-3" th:if="${booking.show.movie.posterUrl != null and !#strings.isEmpty(booking.show.movie.posterUrl)}">
+                <img th:src="${booking.show.movie.posterUrl}" th:alt="${booking.show.movie.title}" class="img-fluid rounded border border-secondary border-opacity-25">
+            </div>
+            <div class="col-md-3" th:if="${booking.show.movie.posterUrl == null or #strings.isEmpty(booking.show.movie.posterUrl)}">
+                <div class="rounded border border-secondary border-opacity-25 p-3 d-flex flex-column justify-content-between" style="min-height: 220px; background: linear-gradient(160deg, #1a1f33 0%, #0b0e17 100%);">
+                    <div class="small text-danger fw-semibold" th:text="${booking.show.movie.language}"></div>
+                    <div class="fw-bold text-white" th:text="${booking.show.movie.title}"></div>
+                </div>
+            </div>
+
+            <div class="col-md-6">
+                <div class="small text-danger fw-semibold mb-1">CINEBOOK DIGITAL TICKET</div>
+                <h2 class="h3 fw-bold text-white mb-1" th:text="${booking.show.movie.title}"></h2>
+                <div class="small text-secondary mb-3" th:text="${booking.show.movie.language} + ' · ' + ${booking.show.movie.certificate}"></div>
+
+                <div class="row g-3 small">
+                    <div class="col-6">
+                        <div class="text-secondary">Unique Booking ID</div>
+                        <div class="font-monospace fw-bold text-white" th:text="${booking.bookingReference}"></div>
+                    </div>
+                    <div class="col-6">
+                        <div class="text-secondary">Selected Seat Numbers</div>
+                        <div class="font-monospace fw-bold text-white" th:text="${seatList}"></div>
+                    </div>
+                    <div class="col-6">
+                        <div class="text-secondary">Theatre Name</div>
+                        <div class="fw-semibold text-white" th:text="${booking.show.screen.theatre.name}"></div>
+                    </div>
+                    <div class="col-6">
+                        <div class="text-secondary">Screen Number</div>
+                        <div class="fw-semibold text-white" th:text="${booking.show.screen.name}"></div>
+                    </div>
+                    <div class="col-6">
+                        <div class="text-secondary">Booking Date</div>
+                        <div class="fw-semibold text-white" th:text="${#temporals.format(booking.bookedAt, 'dd MMM yyyy, hh:mm a')}"></div>
+                    </div>
+                    <div class="col-6">
+                        <div class="text-secondary">Movie Show Date &amp; Showtime</div>
+                        <div class="fw-semibold text-white" th:text="${booking.show.showDate} + ' · ' + ${booking.show.showTime}"></div>
+                    </div>
+                    <div class="col-6">
+                        <div class="text-secondary">Ticket Price</div>
+                        <div class="font-monospace text-white">₹<span th:text="${booking.subtotalAmount}"></span></div>
+                    </div>
+                    <div class="col-6">
+                        <div class="text-secondary">Taxes &amp; Additional Charges</div>
+                        <div class="font-monospace text-white">₹<span th:text="${booking.convenienceFee.add(booking.taxAmount)}"></span> <span class="text-secondary">(Fee ₹<span th:text="${booking.convenienceFee}"></span> + GST ₹<span th:text="${booking.taxAmount}"></span>)</span></div>
+                    </div>
+                    <div class="col-12 pt-2 border-top border-secondary border-opacity-25 d-flex justify-content-between align-items-center">
+                        <span class="text-secondary fw-semibold">Final Amount Paid</span>
+                        <span class="h5 font-monospace fw-bold text-danger mb-0">₹<span th:text="${booking.totalAmount}"></span></span>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3 text-center border-start border-secondary border-opacity-25">
+                <div class="bg-white p-2 rounded d-inline-block mb-2">
+                    <img th:src="${qrCodeImage}" alt="Booking QR Code" width="160" height="160">
+                </div>
+                <div class="small font-monospace text-secondary" th:text="${booking.bookingReference}"></div>
+            </div>
+        </div>
+    </div>
+</main>
+
+<footer th:replace="~{fragments/navbar :: footer}"></footer>
+</body>
+</html>

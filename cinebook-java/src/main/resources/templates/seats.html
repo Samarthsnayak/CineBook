@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/navbar :: head('Select Seats')}"></head>
+<body>
+<nav th:replace="~{fragments/navbar :: navbar}"></nav>
+
+<main class="container py-5">
+    <div th:if="${errorMessage}" class="alert alert-danger" th:text="${errorMessage}"></div>
+
+    <div class="d-flex flex-wrap justify-content-between align-items-center mb-4">
+        <div>
+            <h1 class="h3 fw-bold text-white mb-1" th:text="${show.movie.title}"></h1>
+            <div class="small text-secondary">
+                <span th:text="${show.screen.theatre.name}"></span> ·
+                <span th:text="${show.screen.name}"></span> ·
+                <span th:text="${show.showDate}"></span> at
+                <span class="text-white fw-semibold" th:text="${show.showTime}"></span>
+            </div>
+        </div>
+        <div class="small text-secondary">
+            Silver ₹<span th:text="${show.silverPrice}"></span> ·
+            Gold ₹<span th:text="${show.goldPrice}"></span> ·
+            Platinum ₹<span th:text="${show.platinumPrice}"></span>
+        </div>
+    </div>
+
+    <div class="cb-card p-4 mb-4">
+        <div class="text-center mb-3 small text-secondary">ALL EYES THIS WAY — SCREEN</div>
+        <div class="cinema-screen"></div>
+
+        <div class="d-flex flex-column align-items-center gap-2 overflow-auto py-2">
+            <div th:each="entry : ${seatsByRow}" class="d-flex align-items-center gap-2">
+                <span class="font-monospace small text-secondary me-2" style="width: 24px;" th:text="${entry.key}"></span>
+                <div class="d-flex gap-2">
+                    <button type="button"
+                            th:each="seat : ${entry.value}"
+                            class="seat-btn"
+                            th:classappend="${seat.booked} ? ' booked' : ''"
+                            th:disabled="${seat.booked}"
+                            th:data-seat-id="${seat.id}"
+                            th:data-seat-number="${seat.seatNumber}"
+                            th:data-seat-category="${seat.category}"
+                            th:data-seat-price="${seat.price}"
+                            th:title="${seat.seatNumber + ' - ' + seat.category + ' (₹' + seat.price + ')'}"
+                            th:text="${seat.seatNumber}">
+                    </button>
+                </div>
+                <span class="small text-secondary ms-2" style="width: 72px;" th:text="${entry.value[0].category}"></span>
+            </div>
+        </div>
+
+        <div class="d-flex justify-content-center gap-4 mt-4 pt-3 border-top border-secondary border-opacity-25 small text-secondary">
+            <span><span class="seat-legend-box" style="background:#172033;border:1px solid #334155;"></span>Available</span>
+            <span><span class="seat-legend-box" style="background:#e11d48;border:1px solid #fb7185;"></span>Selected</span>
+            <span><span class="seat-legend-box" style="background:#1e2430;border:1px solid #272f40;"></span>Booked</span>
+        </div>
+    </div>
+
+    <form th:action="@{/bookings/summary}" method="post" class="cb-card p-4 d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3">
+        <input type="hidden" name="showId" th:value="${show.id}">
+        <div id="selected-seat-inputs"></div>
+        <div>
+            <div class="small text-secondary">Selected Seats (<span id="selected-count-display">0</span>)</div>
+            <div id="selected-seats-display" class="fw-semibold text-white">No seats selected yet</div>
+        </div>
+        <div class="d-flex align-items-center gap-4">
+            <div class="text-md-end">
+                <div class="small text-secondary">Ticket Subtotal</div>
+                <div id="selected-total-display" class="h4 fw-bold text-white font-monospace mb-0">₹0.00</div>
+            </div>
+            <button id="proceed-summary-btn" type="submit" class="btn btn-cine px-4" disabled>Review Summary</button>
+        </div>
+    </form>
+</main>
+
+<script th:src="@{/js/seats.js}"></script>
+<footer th:replace="~{fragments/navbar :: footer}"></footer>
+</body>
+</html>

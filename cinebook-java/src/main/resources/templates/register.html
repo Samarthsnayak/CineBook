@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/navbar :: head('Register')}"></head>
+<body>
+<nav th:replace="~{fragments/navbar :: navbar}"></nav>
+
+<main class="container py-5" style="max-width: 500px;">
+    <div class="cb-card p-4 p-md-5">
+        <h1 class="h3 fw-bold text-white mb-1">Create Account</h1>
+        <p class="small text-secondary mb-4">Register to reserve seats and manage your digital movie passes</p>
+
+        <div th:if="${errorMessage}" class="alert alert-danger small" th:text="${errorMessage}"></div>
+
+        <form th:action="@{/register}" th:object="${registerRequest}" method="post">
+            <div class="mb-3">
+                <label class="form-label small text-secondary">Full Name</label>
+                <input type="text" th:field="*{name}" class="form-control bg-dark text-white border-secondary" required>
+                <div class="text-danger small mt-1" th:errors="*{name}"></div>
+            </div>
+            <div class="mb-3">
+                <label class="form-label small text-secondary">Email Address</label>
+                <input type="email" th:field="*{email}" class="form-control bg-dark text-white border-secondary" required>
+                <div class="text-danger small mt-1" th:errors="*{email}"></div>
+            </div>
+            <div class="mb-3">
+                <label class="form-label small text-secondary">Phone Number</label>
+                <input type="tel" th:field="*{phone}" class="form-control bg-dark text-white border-secondary" required>
+                <div class="text-danger small mt-1" th:errors="*{phone}"></div>
+            </div>
+            <div class="mb-4">
+                <label class="form-label small text-secondary">Password (min 6 chars)</label>
+                <input type="password" th:field="*{password}" class="form-control bg-dark text-white border-secondary" required>
+                <div class="text-danger small mt-1" th:errors="*{password}"></div>
+            </div>
+            <button type="submit" class="btn btn-cine w-100">Create Account</button>
+        </form>
+    </div>
+</main>
+
+<footer th:replace="~{fragments/navbar :: footer}"></footer>
+</body>
+</html>

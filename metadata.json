@@ -1,0 +1,6 @@
+{
+  "name": "CineBook – Online Movie Ticket Booking System",
+  "description": "Modern full-stack movie ticket booking platform with interactive seat selection, simulated payments, QR tickets, admin dashboard, and complete Java Spring Boot + MySQL source code.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

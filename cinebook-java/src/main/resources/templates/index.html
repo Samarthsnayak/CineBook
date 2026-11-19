@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/navbar :: head('Home')}"></head>
+<body>
+<nav th:replace="~{fragments/navbar :: navbar}"></nav>
+
+<header class="py-5 border-bottom border-secondary border-opacity-25" style="background: radial-gradient(circle at 20% 20%, rgba(225,29,72,0.16), transparent 45%), #0c101b;">
+    <div class="container py-4">
+        <div class="row align-items-center g-4">
+            <div class="col-lg-7">
+                <h1 class="display-4 fw-bold text-white mb-3">Book Cinema Tickets Without the Queue.</h1>
+                <p class="lead text-secondary mb-4">Explore currently running blockbusters, pick your exact Silver, Gold, or Platinum seats, and get an instant QR digital pass.</p>
+                <form th:action="@{/movies}" method="get" class="d-flex gap-2" style="max-width: 520px;">
+                    <input type="text" name="q" th:value="${searchQuery}" class="form-control bg-dark text-white border-secondary" placeholder="Search movies by title...">
+                    <button type="submit" class="btn btn-cine px-4">Search</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</header>
+
+<main class="container py-5">
+    <div th:if="${!tmdbConfigured}" class="alert alert-dark border-secondary text-secondary small mb-4">
+        Live TMDB sync is not configured (<code class="text-white">TMDB_API_KEY</code> unset). Showing CineBook's verified Indian theatrical catalog across Kannada, Hindi, Tamil, Telugu, and Malayalam.
+    </div>
+
+    <div class="d-flex flex-wrap gap-2 mb-4">
+        <a th:href="@{/}" class="btn btn-sm" th:classappend="${selectedLanguage == null or selectedLanguage == ''} ? 'btn-cine' : 'btn-outline-secondary'">All Languages</a>
+        <a th:each="lang : ${languages}" th:href="@{/(language=${lang})}" th:text="${lang}" class="btn btn-sm" th:classappend="${selectedLanguage == lang} ? 'btn-cine' : 'btn-outline-secondary'"></a>
+    </div>
+
+    <section class="mb-5">
+        <div class="d-flex justify-content-between align-items-end mb-4">
+            <div>
+                <h2 class="h3 fw-bold text-white mb-1">Now Showing</h2>
+                <p class="text-secondary small mb-0">Verified Indian theatrical releases with active showtimes in Bengaluru, Mumbai, Chennai, Hyderabad &amp; Kochi</p>
+            </div>
+            <a th:href="@{/movies(status='NOW_SHOWING')}" class="text-danger text-decoration-none fw-medium">View all →</a>
+        </div>
+        <div class="row g-4">
+            <div class="col-sm-6 col-lg-3" th:each="movie : ${nowShowing}">
+                <div class="cb-card h-100 d-flex flex-column overflow-hidden">
+                    <img th:if="${movie.posterUrl != null and !#strings.isEmpty(movie.posterUrl)}" th:src="${movie.posterUrl}" th:alt="${movie.title}" class="poster-frame">
+                    <div th:if="${movie.posterUrl == null or #strings.isEmpty(movie.posterUrl)}" class="poster-frame d-flex flex-column justify-content-between p-3" style="background: linear-gradient(160deg, #1a1f33 0%, #0b0e17 100%);">
+                        <div class="small text-danger fw-semibold text-uppercase" th:text="${movie.language}"></div>
+                        <div>
+                            <div class="h5 fw-bold text-white mb-1" th:text="${movie.title}"></div>
+                            <div class="small text-secondary" th:text="${movie.genre}"></div>
+                        </div>
+                    </div>
+                    <div class="p-3 d-flex flex-column flex-grow-1">
+                        <div class="small text-secondary mb-1">
+                            <span th:text="${movie.genre}"></span> · <span th:text="${movie.language}"></span>
+                        </div>
+                        <h3 class="h5 fw-bold text-white mb-2" th:text="${movie.title}"></h3>
+                        <div class="small text-secondary mb-3">
+                            <span th:if="${movie.rating != null}">★ <span class="text-white fw-semibold" th:text="${movie.rating}"></span>/10 · </span>
+                            <span th:text="${movie.formattedDuration}"></span> ·
+                            <span th:text="${movie.certificate}"></span>
+                        </div>
+                        <a th:href="@{'/movies/' + ${movie.id}}" class="btn btn-cine w-100 mt-auto">Book Tickets</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section>
+        <div class="d-flex justify-content-between align-items-end mb-4">
+            <div>
+                <h2 class="h3 fw-bold text-white mb-1">Upcoming Movies</h2>
+                <p class="text-secondary small mb-0">Mark your calendar for upcoming Indian cinema premieres</p>
+            </div>
+            <a th:href="@{/movies(status='UPCOMING')}" class="text-danger text-decoration-none fw-medium">View all →</a>
+        </div>
+        <div class="row g-4">
+            <div class="col-sm-6 col-lg-3" th:each="movie : ${upcomingMovies}">
+                <div class="cb-card h-100 d-flex flex-column overflow-hidden">
+                    <img th:if="${movie.posterUrl != null and !#strings.isEmpty(movie.posterUrl)}" th:src="${movie.posterUrl}" th:alt="${movie.title}" class="poster-frame">
+                    <div th:if="${movie.posterUrl == null or #strings.isEmpty(movie.posterUrl)}" class="poster-frame d-flex flex-column justify-content-between p-3" style="background: linear-gradient(160deg, #1b172a 0%, #0b0e17 100%);">
+                        <div class="small text-danger fw-semibold text-uppercase" th:text="${movie.language}"></div>
+                        <div>
+                            <div class="h5 fw-bold text-white mb-1" th:text="${movie.title}"></div>
+                            <div class="small text-secondary" th:text="${movie.releaseDate}"></div>
+                        </div>
+                    </div>
+                    <div class="p-3 d-flex flex-column flex-grow-1">
+                        <div class="small text-secondary mb-1">
+                            <span th:text="${movie.genre}"></span> · Releases <span th:text="${movie.releaseDate}"></span>
+                        </div>
+                        <h3 class="h5 fw-bold text-white mb-2" th:text="${movie.title}"></h3>
+                        <p class="small text-secondary mb-3" th:text="${movie.language} + ' · ' + ${movie.formattedDuration}"></p>
+                        <a th:href="@{'/movies/' + ${movie.id}}" class="btn btn-outline-light w-100 mt-auto">View Details</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+</main>
+
+<footer th:replace="~{fragments/navbar :: footer}"></footer>
+</body>
+</html>
